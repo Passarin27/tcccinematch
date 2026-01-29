@@ -1,8 +1,0 @@
-{
-  "name": "CineMatch",
-  "short_name": "CineMatch",
-  "start_url": "index.html",
-  "display": "standalone",
-  "background_color": "#4B2E83",
-  "theme_color": "#4B2E83"
-}
