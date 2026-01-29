@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Configurações</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="conteudo">
+  <h2>Configurações da Conta</h2>
+
+  <div class="config-bloco">
+    <img id="fotoPerfil" class="foto-config" src="/avatar.png">
+    <input type="file" id="fotoInput" hidden>
+    <button onclick="editarFoto()">Alterar foto</button>
+  </div>
+
+  <div class="config-bloco">
+    <p><strong>Nome:</strong> <span id="nomeAtual"></span></p>
+    <input type="text" id="nomeInput" hidden>
+    <button onclick="editarNome()">Alterar nome</button>
+  </div>
+
+  <div class="config-bloco">
+    <p><strong>E-mail:</strong> <span id="emailAtual"></span></p>
+    <input type="email" id="emailInput" hidden>
+    <button onclick="editarEmail()">Alterar e-mail</button>
+  </div>
+
+  <div class="config-bloco">
+    <p><strong>Senha:</strong> ********</p>
+    <input type="password" id="senhaInput" hidden>
+    <button onclick="editarSenha()">Alterar senha</button>
+  </div>
+
+  <div class="config-bloco">
+    <button onclick="logout()">Sair da conta</button>
+  </div>
+
+  <br><br>
+  <a href="home.html" class="voltar">Voltar</a>
+</div>
+
+<script src="configuracoes.js"></script>
+</body>
+</html>

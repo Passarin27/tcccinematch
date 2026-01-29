@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>CineMatch</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topo">
+  <div class="logo">CineMatch</div>
+  <button onclick="abrirLogin()">Entrar</button>
+</header>
+
+<div id="modalLogin" class="modal">
+  <div class="modal-conteudo">
+    <span class="fechar" onclick="fecharLogin()">×</span>
+
+    <h2>Entrar</h2>
+
+    <input type="email" id="email" placeholder="E-mail">
+    <input type="password" id="senha" placeholder="Senha">
+
+    <button onclick="login()">Entrar</button>
+
+    <p style="margin-top:10px">
+      Não tem conta?
+      <a href="cadastro.html">Cadastre-se</a>
+    </p>
+  </div>
+</div>
+
+<script src="index.js"></script>
+<script src="auth.js"></script>
+</body>
+</html>
