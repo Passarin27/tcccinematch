@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Detalhes do Filme</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div class="detalhes-container">
+
+    <div class="poster-container">
+      <div id="favorito" class="coracao" onclick="toggleFavorito()">❤</div>
+      <img id="poster">
+    </div>
+
+    <div class="detalhes-info">
+      <h2 id="titulo"></h2>
+      <p id="generos"></p>
+      <p id="sinopse"></p>
+      <p><strong>Diretor:</strong> <span id="diretor"></span></p>
+      <p><strong>Atores:</strong> <span id="atores"></span></p>
+      <a href="home.html" class="voltar">Voltar</a>
+    </div>
+
+  </div>
+
+  <script src="detalhes.js"></script>
+
+</body>
+
+</html>
