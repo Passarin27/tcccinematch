@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>CineMatch • Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="mobile.css">
+</head>
+<body class="mobile">
+
+  <header class="topo-mobile">
+    <span class="logo">CineMatch</span>
+    <img id="fotoTopo" class="avatar" src="" onclick="irConfig()">
+  </header>
+
+  <div class="tabs">
+    <button class="tab ativo" onclick="mostrarRecomendacoes()">Recomendações</button>
+    <button class="tab" onclick="mostrarListas()">Minhas Listas</button>
+  </div>
+
+  <main id="conteudo"></main>
+
+  <script src="home.js"></script>
+</body>
+</html>
