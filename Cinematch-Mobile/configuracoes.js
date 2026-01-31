@@ -133,10 +133,10 @@ fotoInput.addEventListener("change", async () => {
 
     const { url } = await uploadRes.json();
 
-    // 2️⃣ salvar no usuário
+
     await salvarBackend({ foto: url });
 
-    // 3️⃣ atualizar tela
+
     document.getElementById("fotoPerfil").src = url;
 
   } catch (err) {
@@ -152,4 +152,5 @@ function logout() {
   localStorage.removeItem("token");
   window.location.href = "index.html";
 }
+
 
