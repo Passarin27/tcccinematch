@@ -120,7 +120,6 @@ fotoInput.addEventListener("change", async () => {
   formData.append("file", file);
 
   try {
-    // 1️⃣ upload
     const uploadRes = await fetch("https://tcc-cinematch.onrender.com/upload", {
       method: "POST",
       headers: {
@@ -143,6 +142,10 @@ fotoInput.addEventListener("change", async () => {
     alert("Erro ao subir imagem");
     console.error(err);
   }
+  window.editarFoto = function () {
+    document.getElementById("fotoInput").click();
+  };
+
 });
 
 /* =========================
@@ -152,5 +155,8 @@ function logout() {
   localStorage.removeItem("token");
   window.location.href = "index.html";
 }
+
+
+
 
 
