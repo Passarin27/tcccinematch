@@ -107,20 +107,6 @@ async function editarSenha() {
   input.hidden = true;
 }
 
-/* =========================
-   FOTO
-========================= */
-function editarFoto() {
-  document.getElementById("fotoInput").click();
-}
-
-/* =========================
-   LOGOUT
-========================= */
-function logout() {
-  localStorage.removeItem("token");
-  window.location.href = "index.html";
-}
 
 /* =========================
    INPUT DE FOTO 
@@ -148,4 +134,19 @@ document.getElementById("fotoInput").addEventListener("change", async (e) => {
   const data = await res.json();
   document.getElementById("fotoPerfil").src = data.foto;
 });
+
+function editarFoto() {
+  document.getElementById("fotoInput").click();
+}
+
+/* =========================
+   LOGOUT
+========================= */
+function logout() {
+  localStorage.removeItem("token");
+  window.location.href = "index.html";
+}
+
+
+
 
