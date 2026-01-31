@@ -84,7 +84,7 @@ async function editarEmail() {
 }
 
 /* =========================
-   EDITAR SENHA (AGORA FUNCIONA)
+   EDITAR SENHA
 ========================= */
 async function editarSenha() {
   const input = document.getElementById("senhaInput");
@@ -123,7 +123,7 @@ function logout() {
 }
 
 /* =========================
-INPUT DE FOTO
+   INPUT DE FOTO
 ========================= */
 document.getElementById("fotoInput").addEventListener("change", async (e) => {
   const file = e.target.files[0];
@@ -137,11 +137,15 @@ document.getElementById("fotoInput").addEventListener("change", async (e) => {
 
   const usuario = await userRes.json();
 
-  const fileName = `${usuario.id}.png`;
+  const ext = file.name.split(".").pop();
+  const fileName = `${usuario.id}.${ext}`;
 
   const { error } = await supabaseClient.storage
     .from("AVATARES")
-    .upload(fileName, file, { upsert: true });
+    .upload(fileName, file, {
+      upsert: true,
+      contentType: file.type
+    });
 
   if (error) {
     alert("Erro ao subir imagem");
@@ -152,12 +156,8 @@ document.getElementById("fotoInput").addEventListener("change", async (e) => {
     .from("AVATARES")
     .getPublicUrl(fileName);
 
-  const fotoUrl = data.publicUrl;
+  console.log(data.publicUrl);
 
-  await salvarBackend({ foto: fotoUrl });
-
-  document.getElementById("fotoPerfil").src = fotoUrl;
+  await salvarBackend({ foto: data.publicUrl });
+  document.getElementById("fotoPerfil").src = data.publicUrl;
 });
-
-
-
