@@ -108,7 +108,7 @@ async function editarSenha() {
 }
 
 /* =========================
-   FOTO (VISUAL)
+   FOTO
 ========================= */
 function editarFoto() {
   document.getElementById("fotoInput").click();
@@ -123,42 +123,28 @@ function logout() {
 }
 
 /* =========================
-   INPUT DE FOTO
+   INPUT DE FOTO (BACKEND)
 ========================= */
 document.getElementById("fotoInput").addEventListener("change", async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
-  const userRes = await fetch("https://tcc-cinematch.onrender.com/users/me", {
-    headers: { Authorization: `Bearer ${token}` }
+  const formData = new FormData();
+  formData.append("foto", file);
+
+  const res = await fetch("https://tcc-cinematch.onrender.com/users/me/avatar", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    body: formData
   });
 
-  if (!userRes.ok) return;
-
-  const usuario = await userRes.json();
-
-  const ext = file.name.split(".").pop();
-  const fileName = `${usuario.id}.${ext}`;
-
-  const { error } = await supabaseClient.storage
-    .from("Avatares")
-    .upload(fileName, file, {
-      upsert: true,
-      contentType: file.type
-    });
-
-  if (error) {
-    alert("Erro ao subir imagem");
+  if (!res.ok) {
+    alert("Erro ao enviar foto");
     return;
   }
 
-  const { data } = supabaseClient.storage
-    .from("Avatares")
-    .getPublicUrl(fileName);
-
-  console.log(data.publicUrl);
-
-  await salvarBackend({ foto: data.publicUrl });
-  document.getElementById("fotoPerfil").src = data.publicUrl;
+  const data = await res.json();
+  document.getElementById("fotoPerfil").src = data.foto;
 });
-
