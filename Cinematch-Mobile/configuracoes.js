@@ -145,6 +145,29 @@ fotoInput.addEventListener("change", async (e) => {
 window.editarFoto = function () {
   document.getElementById("fotoInput").click();
 };
+
+async function removerFoto() {
+  const confirmar = confirm("Deseja remover sua foto?");
+  if (!confirmar) return;
+
+  const res = await fetch(
+    "https://tcc-cinematch.onrender.com/users/me/avatar",
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+
+  if (!res.ok) {
+    alert("Erro ao remover foto");
+    return;
+  }
+
+  document.getElementById("fotoPerfil").src = "./avatar.png";
+}
+
 /* =========================
    LOGOUT
 ========================= */
@@ -152,6 +175,7 @@ function logout() {
   localStorage.removeItem("token");
   window.location.href = "index.html";
 }
+
 
 
 
