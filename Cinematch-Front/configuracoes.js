@@ -123,7 +123,7 @@ function logout() {
 }
 
 /* =========================
-   INPUT DE FOTO (BACKEND)
+   INPUT DE FOTO 
 ========================= */
 document.getElementById("fotoInput").addEventListener("change", async (e) => {
   const file = e.target.files[0];
@@ -148,3 +148,4 @@ document.getElementById("fotoInput").addEventListener("change", async (e) => {
   const data = await res.json();
   document.getElementById("fotoPerfil").src = data.foto;
 });
+
