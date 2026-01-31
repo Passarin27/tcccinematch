@@ -91,7 +91,7 @@ async function obterListaFavoritos() {
 }
 
 /* =========================
-   TOGGLE FAVORITO (CORRIGIDO)
+   TOGGLE FAVORITO 
 ========================= */
 async function toggleFavorito() {
   if (salvandoFavorito) return;
@@ -130,7 +130,7 @@ async function toggleFavorito() {
     /* ===== FAVORITAR ===== */
     coracao.classList.add("ativo");
 
-    // garante que o filme existe
+
     if (!filme) {
       filme = await fetch(`${API_URL}/filmes`, {
         method: "POST",
@@ -167,3 +167,4 @@ async function toggleFavorito() {
 }
 
 carregarDetalhes();
+
