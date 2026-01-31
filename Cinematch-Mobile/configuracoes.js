@@ -84,7 +84,7 @@ async function editarEmail() {
 }
 
 /* =========================
-   EDITAR SENHA (AGORA FUNCIONA)
+   EDITAR SENHA 
 ========================= */
 async function editarSenha() {
   const input = document.getElementById("senhaInput");
@@ -108,11 +108,42 @@ async function editarSenha() {
 }
 
 /* =========================
-   FOTO (VISUAL)
+   FOTO (UPLOAD + BACKEND)
 ========================= */
-function editarFoto() {
-  document.getElementById("fotoInput").click();
-}
+const fotoInput = document.getElementById("fotoInput");
+
+fotoInput.addEventListener("change", async () => {
+  const file = fotoInput.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    // 1️⃣ upload
+    const uploadRes = await fetch("https://tcc-cinematch.onrender.com/upload", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    if (!uploadRes.ok) throw new Error("Erro ao subir imagem");
+
+    const { url } = await uploadRes.json();
+
+    // 2️⃣ salvar no usuário
+    await salvarBackend({ foto: url });
+
+    // 3️⃣ atualizar tela
+    document.getElementById("fotoPerfil").src = url;
+
+  } catch (err) {
+    alert("Erro ao subir imagem");
+    console.error(err);
+  }
+});
 
 /* =========================
    LOGOUT
@@ -121,3 +152,4 @@ function logout() {
   localStorage.removeItem("token");
   window.location.href = "index.html";
 }
+
