@@ -111,33 +111,43 @@ async function editarSenha() {
 /* =========================
    FOTO 
 ========================= */
-document.getElementById("fotoInput").addEventListener("change", async (e) => {
+
+const fotoInput = document.getElementById("fotoInput");
+const fotoPerfil = document.getElementById("fotoPerfil");
+
+function editarFoto() {
+  fotoInput.click();
+}
+
+fotoInput.addEventListener("change", async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
   const formData = new FormData();
   formData.append("foto", file);
 
-  const res = await fetch("https://tcc-cinematch.onrender.com/users/me/avatar", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`
-    },
-    body: formData
-  });
+  try {
+    const res = await fetch(
+      "https://tcc-cinematch.onrender.com/users/me/avatar",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      }
+    );
 
-  if (!res.ok) {
-    alert("Erro ao enviar foto");
-    return;
+    if (!res.ok) throw new Error("Erro ao enviar foto");
+
+    const data = await res.json();
+    fotoPerfil.src = data.foto;
+
+  } catch (err) {
+    alert("Erro ao subir imagem");
+    console.error(err);
   }
-
-  const data = await res.json();
-  document.getElementById("fotoPerfil").src = data.foto;
 });
-
-function editarFoto() {
-  document.getElementById("fotoInput").click();
-}
 
 async function removerFoto() {
   const confirmar = confirm("Deseja remover sua foto?");
@@ -158,9 +168,8 @@ async function removerFoto() {
     return;
   }
 
-  document.getElementById("fotoPerfil").src = "./avatar.png";
+  fotoPerfil.src = "./avatar.png";
 }
-
 
 /* =========================
    LOGOUT
@@ -169,6 +178,7 @@ function logout() {
   localStorage.removeItem("token");
   window.location.href = "index.html";
 }
+
 
 
 
