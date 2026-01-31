@@ -1,35 +1,74 @@
-/* ===== RESET ===== */
+/* ======================
+   RESET GLOBAL
+====================== */
 * {
   box-sizing: border-box;
-}
-
-body {
-  margin: 0;
   font-family: Arial, sans-serif;
-  min-height: 100vh;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden; /* evita tela estourar */
+  background: #0f172a;
   color: #E5E7EB;
-
-  background:
-    linear-gradient(rgba(15, 23, 42, 0.88),
-    rgba(15, 23, 42, 0.95)),
-    url("https://images.unsplash.com/photo-1489599849927-2ee91cede3ba");
-  background-size: cover;
-  background-position: center;
 }
 
-/* ===== MOBILE  ===== */
+/* ======================
+   AUTH (LOGIN / CADASTRO)
+====================== */
+body.auth {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+input {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 14px;
+  border-radius: 8px;
+  border: none;
+}
+
+button {
+  padding: 14px;
+  border-radius: 8px;
+  border: none;
+  background: #6366f1;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+a {
+  color: #93c5fd;
+  text-decoration: none;
+}
+
+/* ======================
+   MOBILE BASE
+====================== */
 body.mobile {
-  padding-bottom: 72px;
+  padding-bottom: 72px; /* espaço da bottom-nav */
 }
 
-/* ===== TOPO M ===== */
+/* ======================
+   TOPO MOBILE
+====================== */
 .topo-mobile {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 16px;
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(6px);
+  padding: 16px;
 }
 
 .logo {
@@ -46,23 +85,13 @@ body.mobile {
   object-fit: cover;
 }
 
-/* ===== CONTEÚDO ===== */
-#conteudo {
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 16px;
-}
-
-#conteudo h2 {
-  font-size: 22px;
-  margin-bottom: 16px;
-}
-
-/* ===== TABS ===== */
+/* ======================
+   TABS
+====================== */
 .tabs {
   display: flex;
+  padding: 8px;
   gap: 8px;
-  margin-bottom: 12px;
 }
 
 .tab {
@@ -78,18 +107,15 @@ body.mobile {
   background: #6366f1;
 }
 
-/* ===== LISTA DE FILMES ===== */
-#lista-filmes {
-  display: flex;
-  flex-direction: column;
-}
-
+/* ======================
+   LISTA DE FILMES
+====================== */
 .filme-card {
   display: flex;
   gap: 12px;
-  padding: 12px 0;
+  padding: 12px;
   border-bottom: 1px solid #1e293b;
-  position: relative;
+  position: relative; /* ancora o coração */
 }
 
 .filme-card img {
@@ -99,49 +125,58 @@ body.mobile {
 
 .filme-info h3 {
   font-size: 16px;
+  font-weight: 700;
   margin: 0 0 4px;
 }
 
 .filme-info small {
   font-size: 13px;
+  font-weight: 600;
   color: #a5b4fc;
+  display: block;
 }
 
 .sinopse {
   font-size: 14px;
-  line-height: 1.4;
+  line-height: 1.5;
+  margin-top: 6px;
+
   max-height: 4.5em;
   overflow: hidden;
 }
 
-/* ===== CORAÇÃO ===== */
+/* ======================
+   CORAÇÃO (ÚNICO, SEM BUG)
+====================== */
 .coracao {
   position: absolute;
-  top: 4px;
-  right: 0;
+  top: 8px;
+  right: 8px;
   font-size: 20px;
   cursor: pointer;
-  color: #9CA3AF;
+  color: #64748b;
 }
 
 .coracao.ativo {
   color: #EF4444;
 }
 
-/* ===== BOTTOM NAV ===== */
+/* ======================
+   BOTTOM NAV
+====================== */
 .bottom-nav {
   position: fixed;
   bottom: 0;
   width: 100%;
   display: flex;
-  background: rgba(0,0,0,0.85);
+  background: #020617;
 }
 
 .bottom-nav button {
   flex: 1;
   padding: 16px;
-  background: none;
   border: none;
+  background: none;
   color: white;
   font-size: 18px;
 }
@@ -150,12 +185,23 @@ body.mobile {
   background: #1e293b;
 }
 
-/* ===== CONFIGURAÇÕES ===== */
+/* ======================
+   CONTEÚDO PADRÃO
+====================== */
+#conteudo {
+  width: 100%;
+  padding: 16px;
+}
+
+/* ======================
+   CONFIGURAÇÕES
+====================== */
 .config-bloco {
   background: rgba(20, 20, 35, 0.95);
-  padding: 16px;
-  border-radius: 10px;
-  margin-bottom: 16px;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.6);
 }
 
 .foto-config {
@@ -164,41 +210,13 @@ body.mobile {
   border-radius: 50%;
   border: 3px solid #A78BFA;
   object-fit: cover;
+  display: block;
   margin-bottom: 12px;
 }
 
-/* BOTÕES CONFIG */
-.config-bloco button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 8px;
-  border-radius: 8px;
-  border: none;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  background: #A78BFA;
-  color: #0F172A;
-}
-
-.config-bloco button.remover {
-  background: #334155;
-  color: #E5E7EB;
-}
-
-/* ===== BOTÃO VOLTAR ===== */
-.voltar {
-  display: inline-block;
-  margin-top: 16px;
-  padding: 10px 14px;
-  background: #A78BFA;
-  color: #0F172A;
-  font-weight: bold;
-  border-radius: 6px;
-  text-decoration: none;
-}
-
-/* ===== MODAL ===== */
+/* ======================
+   MODAL
+====================== */
 .modal {
   display: none;
   position: fixed;
@@ -206,6 +224,11 @@ body.mobile {
   background: rgba(0,0,0,0.7);
   align-items: center;
   justify-content: center;
+  z-index: 999;
+}
+
+.modal.ativo {
+  display: flex;
 }
 
 .modal-conteudo {
@@ -213,13 +236,16 @@ body.mobile {
   padding: 24px;
   width: 90%;
   max-width: 320px;
-  border-radius: 10px;
+  border-radius: 12px;
+  position: relative;
 }
 
 .modal input {
   width: 100%;
   padding: 10px;
   margin-bottom: 12px;
+  border-radius: 6px;
+  border: none;
 }
 
 .fechar {
@@ -227,5 +253,5 @@ body.mobile {
   top: 10px;
   right: 12px;
   cursor: pointer;
-  color: #E5E7EB;
+  font-size: 20px;
 }
