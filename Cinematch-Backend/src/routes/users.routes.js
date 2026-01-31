@@ -3,6 +3,9 @@ const router = express.Router();
 const supabase = require('../config/supabase');
 const authMiddleware = require('../middlewares/auth.middleware');
 const bcrypt = require('bcryptjs');
+const multer = require('multer');
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 /* =========================
    GET /users/me
@@ -10,13 +13,11 @@ const bcrypt = require('bcryptjs');
 router.get('/me', authMiddleware, async (req, res) => {
   const { data, error } = await supabase
     .from('usuarios')
-    .select('id, nome, email, foto, criado_em')
+    .select('id, nome, email, foto')
     .eq('id', req.user.id)
     .single();
 
-  if (error) {
-    return res.status(500).json({ error: error.message });
-  }
+  if (error) return res.status(500).json({ error: error.message });
 
   res.json(data);
 });
@@ -25,39 +26,67 @@ router.get('/me', authMiddleware, async (req, res) => {
    PUT /users/me
 ========================= */
 router.put('/me', authMiddleware, async (req, res) => {
-  try {
-    const { nome, email, foto, senha } = req.body;
+  const { nome, email, senha, foto } = req.body;
+  const dados = {};
 
-    const dadosAtualizar = {};
+  if (nome) dados.nome = nome;
+  if (email) dados.email = email;
+  if (foto) dados.foto = foto;
 
-    if (nome !== undefined) dadosAtualizar.nome = nome;
-    if (email !== undefined) dadosAtualizar.email = email;
-
-    if (foto !== undefined) {
-      dadosAtualizar.foto = foto;
-    }
-
-    if (senha) {
-      const senhaHash = await bcrypt.hash(senha, 10);
-      dadosAtualizar.senha = senhaHash;
-    }
-
-    const { data, error } = await supabase
-      .from('usuarios')
-      .update(dadosAtualizar)
-      .eq('id', req.user.id)
-      .select('id, nome, email, foto')
-      .single();
-
-    if (error) {
-      return res.status(500).json({ error: error.message });
-    }
-
-    res.json(data);
-
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  if (senha) {
+    dados.senha = await bcrypt.hash(senha, 10);
   }
+
+  const { data, error } = await supabase
+    .from('usuarios')
+    .update(dados)
+    .eq('id', req.user.id)
+    .select('id, nome, email, foto')
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  res.json(data);
 });
+
+/* =========================
+   POST /users/me/avatar
+========================= */
+router.post(
+  '/me/avatar',
+  authMiddleware,
+  upload.single('foto'),
+  async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Arquivo não enviado' });
+    }
+
+    const fileName = `${req.user.id}.png`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('Avatares')
+      .upload(fileName, req.file.buffer, {
+        contentType: req.file.mimetype,
+        upsert: true
+      });
+
+    if (uploadError) {
+      return res.status(500).json({ error: uploadError.message });
+    }
+
+    const { data } = supabase.storage
+      .from('Avatares')
+      .getPublicUrl(fileName);
+
+    const fotoUrl = data.publicUrl;
+
+    await supabase
+      .from('usuarios')
+      .update({ foto: fotoUrl })
+      .eq('id', req.user.id);
+
+    res.json({ foto: fotoUrl });
+  }
+);
 
 module.exports = router;
