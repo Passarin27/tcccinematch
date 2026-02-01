@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
-const authMiddleware = require('../controllers/auth.controller');
+const { authMiddleware } = require('../controllers/auth.controller');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
 
@@ -105,6 +105,7 @@ router.delete('/me/avatar', authMiddleware, async (req, res) => {
 
 
 module.exports = router;
+
 
 
 
