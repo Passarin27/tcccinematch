@@ -6,7 +6,7 @@ const authMiddleware = require('../controllers/auth.controller');
 /* =========================
    CRIAR / OBTER FILME
 ========================= */
-router.post('/', authcontroller, async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   const { tmdb_id, titulo, poster } = req.body;
 
   if (!tmdb_id || !titulo || !poster) {
@@ -41,7 +41,7 @@ router.post('/', authcontroller, async (req, res) => {
 /* =========================
    LISTAR FILMES SALVOS
 ========================= */
-router.get('/', authcontroller, async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
   const { data, error } = await supabase
     .from('filmes_salvos')
     .select('*')
@@ -57,7 +57,7 @@ router.get('/', authcontroller, async (req, res) => {
 /* =========================
    REMOVER FILME
 ========================= */
-router.delete('/:id', authcontroller, async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
 
   const { error } = await supabase
@@ -73,4 +73,5 @@ router.delete('/:id', authcontroller, async (req, res) => {
 });
 
 module.exports = router;
+
 
