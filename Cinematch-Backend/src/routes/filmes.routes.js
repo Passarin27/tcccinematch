@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
-const authMiddleware = require('../controllers/auth.controller');
+const { authMiddleware } = require('../controllers/auth.controller');
 
 /* =========================
    CRIAR / OBTER FILME
@@ -73,5 +73,6 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+
 
 
