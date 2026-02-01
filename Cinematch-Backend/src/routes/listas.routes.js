@@ -4,7 +4,7 @@ const supabase = require('../config/supabase');
 const authMiddleware = require('../controllers/auth.controller');
 
 // criar lista
-router.post('/', authcontroller, async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   const { nome } = req.body;
 
   if (!nome) {
@@ -28,7 +28,7 @@ router.post('/', authcontroller, async (req, res) => {
 });
 
 // listar listas do usuário
-router.get('/', authcontroller, async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
   const { data, error } = await supabase
     .from('listas')
     .select('*')
@@ -43,7 +43,7 @@ router.get('/', authcontroller, async (req, res) => {
 });
 
 // adicionar filme a uma lista
-router.post('/:listaId/filmes', authcontroller, async (req, res) => {
+router.post('/:listaId/filmes', authMiddleware, async (req, res) => {
   const { listaId } = req.params;
   const { filme_id } = req.body;
 
@@ -68,7 +68,7 @@ router.post('/:listaId/filmes', authcontroller, async (req, res) => {
 });
 
 // listar filmes de uma lista
-router.get('/:listaId/filmes', authcontroller, async (req, res) => {
+router.get('/:listaId/filmes', authMiddleware, async (req, res) => {
   const { listaId } = req.params;
 
   const { data, error } = await supabase
@@ -94,7 +94,7 @@ router.get('/:listaId/filmes', authcontroller, async (req, res) => {
 });
 
 // remover lista
-router.delete('/:id', authcontroller, async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
 
   const { error } = await supabase
@@ -111,7 +111,7 @@ router.delete('/:id', authcontroller, async (req, res) => {
 });
 
 // remover filme de uma lista
-router.delete('/:listaId/filmes/:filmeId', authcontroller, async (req, res) => {
+router.delete('/:listaId/filmes/:filmeId', authMiddleware, async (req, res) => {
   const { listaId, filmeId } = req.params;
 
   const { error } = await supabase
@@ -129,4 +129,5 @@ router.delete('/:listaId/filmes/:filmeId', authcontroller, async (req, res) => {
 
 
 module.exports = router;
+
 
