@@ -18,7 +18,7 @@ app.use('/auth', require('./routes/auth.routes'));
 app.use('/users', require('./routes/users.routes'));
 app.use('/filmes', require('./routes/filmes.routes'));
 app.use('/listas', require('./routes/listas.routes'));
-
+app.use('/home', require('./routes/home.routes'));
 
 /* =========================
    START SERVER (RENDER)
@@ -28,5 +28,6 @@ const PORT = process.env.PORT || 3333;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });
+
 
 
