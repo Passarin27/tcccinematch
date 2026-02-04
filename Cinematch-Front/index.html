@@ -10,15 +10,8 @@
 
 <body>
 
-  <header class="topo">
-    <div class="logo">CineMatch</div>
-    <button onclick="abrirLogin()">Entrar</button>
-  </header>
-
-  <div id="modalLogin" class="modal">
-    <div class="modal-conteudo">
-      <span class="fechar" onclick="fecharLogin()">×</span>
-
+  <div class="modal" style="display:flex">
+    <div class="modal-conteudo login">
       <h2>Entrar</h2>
 
       <input type="email" id="email" placeholder="E-mail">
@@ -26,15 +19,13 @@
 
       <button onclick="login()">Entrar</button>
 
-      <p style="margin-top:10px">
+      <p>
         Não tem conta?
-        <a href="cadastro.html">Cadastre-se</a>
+        <a href="cadastro.html">Criar conta</a>
       </p>
     </div>
   </div>
 
-
-  <script src="index.js"></script>
   <script src="auth.js"></script>
 
 </body>
