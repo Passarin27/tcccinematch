@@ -99,6 +99,15 @@ async function registrar() {
   const email = document.getElementById("email").value;
   const senha = document.getElementById("senha").value;
 
+  // Normaliza os gêneros para o backend / TMDB
+  const normalizedGenres = selectedGenres.map(g =>
+    g
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // remove acentos
+      .replace(/\s+/g, "_") // espaço vira _
+  );
+
   const res = await fetch(`${API_URL}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -106,7 +115,7 @@ async function registrar() {
       nome,
       email,
       senha,
-      preferences: selectedGenres
+      preferences: normalizedGenres
     })
   });
 
