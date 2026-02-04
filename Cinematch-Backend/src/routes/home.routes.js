@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const supabase = require('../config/supabase');
 const { authMiddleware } = require('../controllers/auth.controller');
+const MAPA_GENEROS_TMDB = require('../utils/generosTMDB');
+
 const fetch = (...args) =>
   import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
@@ -24,10 +26,22 @@ router.get('/', authMiddleware, async (req, res) => {
       return res.json([]);
     }
 
-    const generos = usuario.generos_prediletos.join(',');
+    // Converte nomes dos gêneros em IDs do TMDB
+    const generosIds = usuario.generos_prediletos
+      .map(g => MAPA_GENEROS_TMDB[g.toLowerCase()])
+      .filter(Boolean);
 
+    if (!generosIds.length) {
+      console.log('Nenhum gênero válido:', usuario.generos_prediletos);
+      return res.json([]);
+    }
+
+    const generos = generosIds.join(',');
     const page = req.query.page || 1;
-    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${'1ed547b4243d008478f0754b4621dbe2'}&language=pt-BR&with_genres=${generos}&page=${page}`;
+
+    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&language=pt-BR&with_genres=${generos}&page=${page}`;
+
+    console.log('URL TMDB:', url);
 
     const response = await fetch(url);
     const dados = await response.json();
