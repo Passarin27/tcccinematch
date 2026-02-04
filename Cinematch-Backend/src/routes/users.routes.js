@@ -26,7 +26,7 @@ router.get('/me', authMiddleware, async (req, res) => {
    PUT /users/me
 ========================= */
 router.put('/me', authMiddleware, async (req, res) => {
-  const { nome, email, senha, foto } = req.body;
+  const { nome, email, senha, foto, preferences } = req.body;
   const dados = {};
 
   if (nome) dados.nome = nome;
@@ -105,6 +105,7 @@ router.delete('/me/avatar', authMiddleware, async (req, res) => {
 
 
 module.exports = router;
+
 
 
 
