@@ -34,10 +34,14 @@ const authMiddleware = (req, res, next) => {
    REGISTER
 ========================= */
 const register = async (req, res) => {
-  let { nome, email, senha } = req.body;
+  let { nome, email, senha, preferences } = req.body;
 
   if (!nome || !email || !senha) {
     return res.status(400).json({ error: 'Dados obrigatórios' });
+  }
+
+  if (!Array.isArray(preferences)) {
+    preferences = [];
   }
 
   try {
@@ -47,8 +51,13 @@ const register = async (req, res) => {
 
     const { data, error } = await supabase
       .from('usuarios')
-      .insert([{ nome, email, senha: senhaHash }])
-      .select('id, nome, email')
+      .insert([{
+        nome,
+        email,
+        senha: senhaHash,
+        preferences
+      }])
+      .select('id, nome, email, preferences')
       .single();
 
     if (error) {
@@ -111,3 +120,4 @@ module.exports = {
   register,
   login
 };
+
