@@ -33,6 +33,10 @@ router.put('/me', authMiddleware, async (req, res) => {
   if (email) dados.email = email;
   if (foto) dados.foto = foto;
 
+  if (Array.isArray(preferences)) {
+    dados.preferences = preferences;
+  }
+
   if (senha) {
     dados.senha = await bcrypt.hash(senha, 10);
   }
@@ -41,7 +45,7 @@ router.put('/me', authMiddleware, async (req, res) => {
     .from('usuarios')
     .update(dados)
     .eq('id', req.user.id)
-    .select('id, nome, email, foto')
+    .select('id, nome, email, foto, preferences')
     .single();
 
   if (error) return res.status(500).json({ error: error.message });
@@ -105,6 +109,7 @@ router.delete('/me/avatar', authMiddleware, async (req, res) => {
 
 
 module.exports = router;
+
 
 
 
