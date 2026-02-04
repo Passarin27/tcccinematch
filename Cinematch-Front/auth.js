@@ -1,23 +1,70 @@
 const API_URL = "https://tcc-cinematch.onrender.com";
 
+const allGenres = [
+  "Ação",
+  "Drama",
+  "Comédia",
+  "Terror",
+  "Ficção Científica",
+  "Romance",
+  "Animação",
+  "Fantasia",
+  "Suspense"
+];
+
 let selectedGenres = [];
 
-/* =========================
-   SELEÇÃO DE GENEROS
-========================= */
 document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".genre").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const genre = btn.textContent.trim();
+  const input = document.getElementById("genreInput");
+  const dropdown = document.getElementById("genreDropdown");
+  const selectedContainer = document.getElementById("selectedGenres");
 
-      if (selectedGenres.includes(genre)) {
-        selectedGenres = selectedGenres.filter(g => g !== genre);
-        btn.classList.remove("active");
-      } else {
-        selectedGenres.push(genre);
-        btn.classList.add("active");
-      }
+  function renderDropdown() {
+    dropdown.innerHTML = "";
+    allGenres
+      .filter(g => !selectedGenres.includes(g))
+      .forEach(genre => {
+        const div = document.createElement("div");
+        div.className = "genre-option";
+        div.textContent = genre;
+        div.onclick = () => addGenre(genre);
+        dropdown.appendChild(div);
+      });
+  }
+
+  function renderSelected() {
+    selectedContainer.innerHTML = "";
+    selectedGenres.forEach(genre => {
+      const tag = document.createElement("div");
+      tag.className = "genre-tag";
+      tag.innerHTML = `${genre} <span>×</span>`;
+      tag.querySelector("span").onclick = () => removeGenre(genre);
+      selectedContainer.appendChild(tag);
     });
+  }
+
+  function addGenre(genre) {
+    selectedGenres.push(genre);
+    renderSelected();
+    renderDropdown();
+  }
+
+  function removeGenre(genre) {
+    selectedGenres = selectedGenres.filter(g => g !== genre);
+    renderSelected();
+    renderDropdown();
+  }
+
+  input.addEventListener("click", () => {
+    dropdown.style.display =
+      dropdown.style.display === "block" ? "none" : "block";
+    renderDropdown();
+  });
+
+  document.addEventListener("click", e => {
+    if (!e.target.closest(".genre-select")) {
+      dropdown.style.display = "none";
+    }
   });
 });
 
