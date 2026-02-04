@@ -3,11 +3,7 @@ const router = express.Router();
 const supabase = require('../config/supabase');
 const { authMiddleware } = require('../controllers/auth.controller');
 
-
 const MAPA_GENEROS_TMDB = require('../utils/generosTMDB');
-
-const fetch = (...args) =>
-  import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 
@@ -21,9 +17,7 @@ if (!TMDB_API_KEY) {
 router.get('/', authMiddleware, async (req, res) => {
   try {
     if (!TMDB_API_KEY) {
-      return res
-        .status(500)
-        .json({ error: 'Configuração inválida do servidor' });
+      return res.status(500).json({ error: 'Configuração inválida do servidor' });
     }
 
     const userId = req.user.id;
@@ -51,6 +45,8 @@ router.get('/', authMiddleware, async (req, res) => {
     const page = req.query.page || 1;
 
     const url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&language=pt-BR&with_genres=${generos}&page=${page}`;
+
+    console.log('TMDB URL:', url);
 
     const response = await fetch(url);
     const dados = await response.json();
