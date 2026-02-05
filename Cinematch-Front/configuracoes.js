@@ -185,13 +185,13 @@ document.getElementById("fotoInput").addEventListener("change", async (e) => {
   if (!file) return;
 
   const formData = new FormData();
-  formData.append("avatar", file); // nome esperado pelo backend
+  formData.append("foto", file); // 🔥 nome correto
 
   try {
     const res = await fetch(
       "https://tcc-cinematch.onrender.com/users/me/avatar",
       {
-        method: "PUT",
+        method: "POST", // 🔥 método correto
         headers: {
           Authorization: `Bearer ${token}`
         },
@@ -206,8 +206,7 @@ document.getElementById("fotoInput").addEventListener("change", async (e) => {
 
     const data = await res.json();
 
-    // atualiza imagem na tela
-    document.getElementById("fotoPerfil").src = data.avatar;
+    document.getElementById("fotoPerfil").src = data.foto; // 🔥 campo correto
 
     showToast("Avatar atualizado com sucesso", "sucesso");
   } catch (err) {
@@ -215,9 +214,23 @@ document.getElementById("fotoInput").addEventListener("change", async (e) => {
   }
 });
 
-function removerFoto() {
-  document.getElementById("fotoPerfil").src = "./avatar.png";
-  showToast("Avatar removido", "info");
+async function removerFoto() {
+  try {
+    await fetch(
+      "https://tcc-cinematch.onrender.com/users/me/avatar",
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    document.getElementById("fotoPerfil").src = "./avatar.png";
+    showToast("Avatar removido", "info");
+  } catch {
+    showToast("Erro ao remover avatar", "erro");
+  }
 }
 
 
@@ -332,4 +345,5 @@ function showToast(msg, tipo = "info") {
 
   setTimeout(() => toast.remove(), 3000);
 }
+
 
