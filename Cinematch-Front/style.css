@@ -781,6 +781,23 @@ a.voltar:hover,
   transform: translateY(-1px);
   box-shadow: 0 6px 18px rgba(99,102,241,.4);
 }
+/* ===== TOPO – ENTRAR / CADASTRAR ===== */
+.menu a {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(99,102,241,0.12);
+  border: 1px solid rgba(99,102,241,0.35);
+  color: #EDE9FE;
+  font-weight: 600;
+  transition: all .2s ease;
+}
+
+.menu a:hover {
+  background: rgba(99,102,241,0.35);
+  text-decoration: none;
+}
+
+
 
 
 
