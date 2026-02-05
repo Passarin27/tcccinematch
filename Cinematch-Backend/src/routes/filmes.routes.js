@@ -168,5 +168,16 @@ router.post('/ja-assistidos', authMiddleware, async (req, res) => {
   }
 });
 
+router.get('/detalhes/:tmdbId', authMiddleware, async (req, res) => {
+  try {
+    const filme = await buscarFilmeTMDB(req.params.tmdbId);
+    res.json(filme);
+  } catch {
+    res.status(500).json({ error: 'Erro ao buscar detalhes' });
+  }
+});
+
+
 module.exports = router;
+
 
