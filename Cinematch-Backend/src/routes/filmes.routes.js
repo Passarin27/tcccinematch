@@ -39,6 +39,7 @@ router.get('/status/:tmdbId', authMiddleware, async (req, res) => {
       .from('filmes_salvos')
       .select('id')
       .eq('tmdb_id', tmdbId)
+      .eq('usuario_id', userId)
       .single();
 
     if (!filme) {
@@ -68,7 +69,7 @@ router.get('/status/:tmdbId', authMiddleware, async (req, res) => {
 ========================= */
 router.post('/assistir-depois', authMiddleware, async (req, res) => {
   try {
-    const { tmdb_id } = req.body;
+    const { tmdb_id, titulo, poster } = req.body;
     const userId = req.user.id;
 
     if (!tmdb_id) return res.sendStatus(400);
@@ -76,11 +77,24 @@ router.post('/assistir-depois', authMiddleware, async (req, res) => {
     const listaAssistirDepois = await obterOuCriarLista('Assistir depois', userId);
     const listaJaAssistidos = await obterOuCriarLista('Já assistidos', userId);
 
-    const { data: filme } = await supabase
+    const { data: filme, error } = await supabase
       .from('filmes_salvos')
-      .upsert([{ tmdb_id }])
+      .upsert(
+        [{
+          tmdb_id,
+          titulo,
+          poster,
+          usuario_id: userId
+        }],
+        { onConflict: 'tmdb_id,usuario_id' }
+      )
       .select()
       .single();
+
+    if (error) {
+      console.error(error);
+      return res.sendStatus(500);
+    }
 
     await supabase
       .from('lista_filmes')
@@ -107,7 +121,7 @@ router.post('/assistir-depois', authMiddleware, async (req, res) => {
 ========================= */
 router.post('/ja-assistidos', authMiddleware, async (req, res) => {
   try {
-    const { tmdb_id } = req.body;
+    const { tmdb_id, titulo, poster } = req.body;
     const userId = req.user.id;
 
     if (!tmdb_id) return res.sendStatus(400);
@@ -115,11 +129,24 @@ router.post('/ja-assistidos', authMiddleware, async (req, res) => {
     const listaJaAssistidos = await obterOuCriarLista('Já assistidos', userId);
     const listaAssistirDepois = await obterOuCriarLista('Assistir depois', userId);
 
-    const { data: filme } = await supabase
+    const { data: filme, error } = await supabase
       .from('filmes_salvos')
-      .upsert([{ tmdb_id }])
+      .upsert(
+        [{
+          tmdb_id,
+          titulo,
+          poster,
+          usuario_id: userId
+        }],
+        { onConflict: 'tmdb_id,usuario_id' }
+      )
       .select()
       .single();
+
+    if (error) {
+      console.error(error);
+      return res.sendStatus(500);
+    }
 
     await supabase
       .from('lista_filmes')
