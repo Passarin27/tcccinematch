@@ -12,8 +12,6 @@ const params = new URLSearchParams(window.location.search);
 const filmeId = params.get("id");
 const from = params.get("from");
 
-let salvandoFavorito = false;
-
 /* =========================
    CARREGAR DETALHES
 ========================= */
@@ -43,128 +41,77 @@ async function carregarDetalhes() {
   document.getElementById("diretor").textContent =
     diretor?.name || "Não informado";
   document.getElementById("atores").textContent = atores;
-
-  verificarFavorito();
 }
 
 /* =========================
-   VERIFICAR FAVORITO
+   OBTER LISTA POR NOME
 ========================= */
-async function verificarFavorito() {
-  const res = await fetch(`${API_URL}/filmes`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-
-  const filmes = await res.json();
-  const jaFavorito = filmes.find(
-    f => String(f.tmdb_id) === String(filmeId)
-  );
-
-  if (jaFavorito) {
-    document.getElementById("favorito").classList.add("ativo");
-  }
-}
-
-/* =========================
-   OBTER / CRIAR LISTA FAVORITOS
-========================= */
-async function obterListaFavoritos() {
+async function obterListaPorNome(nome) {
   const res = await fetch(`${API_URL}/listas`, {
     headers: { Authorization: `Bearer ${token}` }
   });
 
   const listas = await res.json();
-  let favoritos = listas.find(l => l.nome === "Favoritos");
-
-  if (!favoritos) {
-    favoritos = await fetch(`${API_URL}/listas`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ nome: "Favoritos" })
-    }).then(r => r.json());
-  }
-
-  return favoritos.id;
+  const lista = listas.find(l => l.nome === nome);
+  return lista?.id;
 }
 
 /* =========================
-   TOGGLE FAVORITO 
+   SALVAR FILME NA LISTA
 ========================= */
-async function toggleFavorito() {
-  if (salvandoFavorito) return;
-  salvandoFavorito = true;
+async function salvarFilmeNaLista(nomeLista) {
+  let filme = await fetch(`${API_URL}/filmes`, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+    .then(r => r.json())
+    .then(fs => fs.find(f => String(f.tmdb_id) === String(filmeId)));
 
-  const coracao = document.getElementById("favorito");
-
-  try {
-    const filmes = await fetch(`${API_URL}/filmes`, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).then(r => r.json());
-
-    let filme = filmes.find(
-      f => String(f.tmdb_id) === String(filmeId)
-    );
-
-    /* ===== DESFAVORITAR ===== */
-    if (coracao.classList.contains("ativo")) {
-      coracao.classList.remove("ativo");
-
-      if (filme) {
-        const listaId = await obterListaFavoritos();
-
-        await fetch(
-          `${API_URL}/listas/${listaId}/filmes/${filme.id}`,
-          {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` }
-          }
-        );
-      }
-
-      return;
-    }
-
-    /* ===== FAVORITAR ===== */
-    coracao.classList.add("ativo");
-
-
-    if (!filme) {
-      filme = await fetch(`${API_URL}/filmes`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          tmdb_id: filmeId,
-          titulo: document.getElementById("titulo").textContent,
-          poster: document.getElementById("poster").src
-        })
-      }).then(r => r.json());
-    }
-
-    const listaId = await obterListaFavoritos();
-
-    await fetch(`${API_URL}/listas/${listaId}/filmes`, {
+  if (!filme) {
+    filme = await fetch(`${API_URL}/filmes`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({
-        filme_id: filme.id
+        tmdb_id: filmeId,
+        titulo: document.getElementById("titulo").textContent,
+        poster: document.getElementById("poster").src
       })
-    });
+    }).then(r => r.json());
+  }
 
+  const listaId = await obterListaPorNome(nomeLista);
+
+  await fetch(`${API_URL}/listas/${listaId}/filmes`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ filme_id: filme.id })
+  });
+}
+
+/* =========================
+   AÇÕES DOS BOTÕES
+========================= */
+async function marcarAssistirDepois() {
+  try {
+    await salvarFilmeNaLista("Assistir depois");
+    alert("Adicionado à lista Assistir depois");
   } catch (err) {
-    console.error("Erro ao favoritar:", err);
-  } finally {
-    salvandoFavorito = false;
+    console.error("Erro ao salvar Assistir depois:", err);
+  }
+}
+
+async function marcarJaAssistido() {
+  try {
+    await salvarFilmeNaLista("Já assistidos");
+    alert("Marcado como já assistido");
+  } catch (err) {
+    console.error("Erro ao salvar Já assistidos:", err);
   }
 }
 
 carregarDetalhes();
-
