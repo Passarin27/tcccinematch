@@ -6,7 +6,7 @@ if (!token || !tmdbId) {
   window.location.href = "home.html";
 }
 
-const TMDB_API_KEY = "SUA_API_KEY_TMDB_AQUI"; // a mesma do home
+const TMDB_API_KEY = "1ed547b4243d008478f0754b4621dbe2"; 
 const IMG_URL = "https://image.tmdb.org/t/p/w500";
 
 const poster = document.getElementById("poster");
@@ -117,3 +117,4 @@ btnJaAssistido.addEventListener("click", async () => {
   await carregarDetalhes();
   await carregarStatus();
 })();
+
