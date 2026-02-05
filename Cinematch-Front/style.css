@@ -471,7 +471,10 @@ body {
   border-radius: 12px;
 }
 
-
+.detalhes-container img {
+  width: 280px;
+  border-radius: 12px;
+}
 
 
 
