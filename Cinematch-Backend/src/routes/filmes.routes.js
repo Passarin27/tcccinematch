@@ -48,9 +48,8 @@ router.get('/status/:tmdbId', authMiddleware, async (req, res) => {
 
     const { data: listas = [] } = await supabase
       .from('lista_filmes')
-      .select(`listas!inner ( nome, usuario_id )`)
-      .eq('filme_id', filme.id)
-      .eq('listas.usuario_id', userId);
+      .select(`listas!inner ( nome )`)
+      .eq('filme_id', filme.id);
 
     const nomes = listas.map(l => l.listas.nome);
 
@@ -80,12 +79,7 @@ router.post('/assistir-depois', authMiddleware, async (req, res) => {
     const { data: filme, error } = await supabase
       .from('filmes_salvos')
       .upsert(
-        [{
-          tmdb_id,
-          titulo,
-          poster,
-          usuario_id: userId
-        }],
+        [{ tmdb_id, titulo, poster, usuario_id: userId }],
         { onConflict: 'tmdb_id,usuario_id' }
       )
       .select()
@@ -132,12 +126,7 @@ router.post('/ja-assistidos', authMiddleware, async (req, res) => {
     const { data: filme, error } = await supabase
       .from('filmes_salvos')
       .upsert(
-        [{
-          tmdb_id,
-          titulo,
-          poster,
-          usuario_id: userId
-        }],
+        [{ tmdb_id, titulo, poster, usuario_id: userId }],
         { onConflict: 'tmdb_id,usuario_id' }
       )
       .select()
