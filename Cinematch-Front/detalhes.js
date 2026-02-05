@@ -18,7 +18,7 @@ const atores = document.getElementById("atores");
 const btnAssistirDepois = document.getElementById("btn-assistir-depois");
 const btnJaAssistido = document.getElementById("btn-ja-assistido");
 
-let detalhesCarregados = false;
+let filmeAtual = null;
 
 /* =========================
    CARREGAR DETALHES (TMDB)
@@ -32,8 +32,8 @@ async function carregarDetalhes() {
     if (!res.ok) throw new Error("Erro ao buscar TMDB");
 
     const filme = await res.json();
+    filmeAtual = filme;
 
-    // 🛡️ PROTEÇÕES CONTRA NULL
     poster.src = filme.poster_path
       ? IMG_URL + filme.poster_path
       : "https://via.placeholder.com/300x450?text=Sem+Imagem";
@@ -51,7 +51,6 @@ async function carregarDetalhes() {
       ? cast.slice(0, 5).map(a => a.name).join(", ")
       : "Não informado";
 
-    detalhesCarregados = true;
   } catch (err) {
     console.error("Erro detalhes:", err);
     alert("Erro ao carregar detalhes do filme");
@@ -65,11 +64,7 @@ async function carregarStatus() {
   try {
     const res = await fetch(
       `https://tcc-cinematch.onrender.com/filmes/status/${tmdbId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
+      { headers: { Authorization: `Bearer ${token}` } }
     );
 
     if (!res.ok) return;
@@ -78,7 +73,6 @@ async function carregarStatus() {
 
     if (status.assistirDepois) btnAssistirDepois.classList.add("ativo");
     if (status.jaAssistido) btnJaAssistido.classList.add("ativo");
-
   } catch (err) {
     console.error("Erro status:", err);
   }
@@ -88,55 +82,53 @@ async function carregarStatus() {
    BOTÕES
 ========================= */
 btnAssistirDepois.addEventListener("click", async () => {
-  if (!detalhesCarregados) return alert("Filme ainda carregando...");
+  if (!filmeAtual) return alert("Filme ainda carregando...");
 
-  try {
-    const res = await fetch(
-      "https://tcc-cinematch.onrender.com/filmes/assistir-depois",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ tmdb_id: Number(tmdbId) })
-      }
-    );
+  await fetch(
+    "https://tcc-cinematch.onrender.com/filmes/assistir-depois",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        tmdb_id: Number(tmdbId),
+        titulo: filmeAtual.title,
+        poster: filmeAtual.poster_path
+          ? IMG_URL + filmeAtual.poster_path
+          : null
+      })
+    }
+  );
 
-    if (!res.ok) throw new Error("Erro ao salvar");
-
-    btnAssistirDepois.classList.add("ativo");
-    btnJaAssistido.classList.remove("ativo");
-  } catch (err) {
-    alert("Erro ao salvar filme");
-    console.error(err);
-  }
+  btnAssistirDepois.classList.add("ativo");
+  btnJaAssistido.classList.remove("ativo");
 });
 
 btnJaAssistido.addEventListener("click", async () => {
-  if (!detalhesCarregados) return alert("Filme ainda carregando...");
+  if (!filmeAtual) return alert("Filme ainda carregando...");
 
-  try {
-    const res = await fetch(
-      "https://tcc-cinematch.onrender.com/filmes/ja-assistidos",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ tmdb_id: Number(tmdbId) })
-      }
-    );
+  await fetch(
+    "https://tcc-cinematch.onrender.com/filmes/ja-assistidos",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        tmdb_id: Number(tmdbId),
+        titulo: filmeAtual.title,
+        poster: filmeAtual.poster_path
+          ? IMG_URL + filmeAtual.poster_path
+          : null
+      })
+    }
+  );
 
-    if (!res.ok) throw new Error("Erro ao salvar");
-
-    btnJaAssistido.classList.add("ativo");
-    btnAssistirDepois.classList.remove("ativo");
-  } catch (err) {
-    alert("Erro ao salvar filme");
-    console.error(err);
-  }
+  btnJaAssistido.classList.add("ativo");
+  btnAssistirDepois.classList.remove("ativo");
 });
 
 /* =========================
