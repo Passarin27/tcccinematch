@@ -477,6 +477,17 @@ body {
   border-radius: 12px;
 }
 
+.poster-container img {
+  position: relative;
+  z-index: 1;
+}
+
+.badge {
+  position: absolute;
+  z-index: 10; /* 🔥 agora recebe clique */
+}
+
+
 
 
 
