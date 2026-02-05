@@ -44,17 +44,16 @@ router.get('/status/:tmdbId', authMiddleware, async (req, res) => {
     return res.json({ assistirDepois: false, jaAssistido: false });
   }
 
-  const { data: listas, error } = await supabase
+  const { data: listas } = await supabase
     .from('lista_filmes')
     .select(`
-      listas!inner ( nome, usuario_id )
+      listas!inner (
+        nome,
+        usuario_id
+      )
     `)
     .eq('filme_id', filme.id)
     .eq('listas.usuario_id', userId);
-
-  if (error) {
-    return res.status(400).json({ error: error.message });
-  }
 
   const nomes = listas.map(l => l.listas.nome);
 
@@ -186,3 +185,4 @@ router.delete('/ja-assistidos/:tmdbId', authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+
