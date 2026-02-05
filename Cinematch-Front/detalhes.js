@@ -5,13 +5,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const posterImg = document.getElementById("poster");
   const tituloEl = document.getElementById("titulo");
   const sinopseEl = document.getElementById("sinopse");
-  const diretorEl = document.getElementById("diretor");
-  const atoresEl = document.getElementById("atores");
-
-  if (!btnAssistirDepois || !btnJaAssistido) {
-    console.error("❌ Botões não encontrados no DOM");
-    return;
-  }
 
   const token = localStorage.getItem("token");
   const params = new URLSearchParams(window.location.search);
@@ -22,59 +15,36 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  const TMDB_TOKEN = "SEU_TOKEN_TMDB_AQUI";
-
   /* =========================
-     CARREGAR DETALHES DO FILME
+     CARREGAR DETALHES (BACKEND)
   ========================= */
   async function carregarDetalhes() {
     try {
-      const [filmeRes, creditosRes] = await Promise.all([
-        fetch(
-          `https://api.themoviedb.org/3/movie/${filmeId}?language=pt-BR`,
-          {
-            headers: {
-              Authorization: `Bearer ${TMDB_TOKEN}`
-            }
+      const res = await fetch(
+        `https://tcc-cinematch.onrender.com/filmes/detalhes/${filmeId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
           }
-        ),
-        fetch(
-          `https://api.themoviedb.org/3/movie/${filmeId}/credits?language=pt-BR`,
-          {
-            headers: {
-              Authorization: `Bearer ${TMDB_TOKEN}`
-            }
-          }
-        )
-      ]);
+        }
+      );
 
-      const filme = await filmeRes.json();
-      const creditos = await creditosRes.json();
+      if (!res.ok) throw new Error("Erro ao buscar detalhes");
 
-      if (posterImg && filme.poster_path) {
-        posterImg.src = `https://image.tmdb.org/t/p/w500${filme.poster_path}`;
-      }
+      const filme = await res.json();
 
-      if (tituloEl) tituloEl.textContent = filme.title;
-      if (sinopseEl) sinopseEl.textContent = filme.overview || "Sem sinopse disponível.";
-
-      const diretor = creditos.crew.find(p => p.job === "Director");
-      if (diretorEl) diretorEl.textContent = diretor ? diretor.name : "-";
-
-      const atores = creditos.cast
-        .slice(0, 5)
-        .map(a => a.name)
-        .join(", ");
-
-      if (atoresEl) atoresEl.textContent = atores || "-";
+      posterImg.src = `https://image.tmdb.org/t/p/w500${filme.poster_path}`;
+      tituloEl.textContent = filme.title;
+      sinopseEl.textContent =
+        filme.overview || "Sem sinopse disponível.";
 
     } catch (err) {
-      console.error("Erro ao carregar detalhes do filme:", err);
+      console.error("Erro detalhes:", err);
     }
   }
 
   /* =========================
-     VERIFICAR STATUS
+     STATUS DO FILME
   ========================= */
   async function verificarStatus() {
     try {
@@ -95,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
       btnJaAssistido.classList.toggle("ativo", status.jaAssistido);
 
     } catch (err) {
-      console.error("Erro ao verificar status:", err);
+      console.error("Erro status:", err);
     }
   }
 
@@ -103,28 +73,26 @@ document.addEventListener("DOMContentLoaded", () => {
      ASSISTIR DEPOIS
   ========================= */
   btnAssistirDepois.addEventListener("click", async () => {
-    const ativo = btnAssistirDepois.classList.contains("ativo");
-
     try {
-      const url = ativo
-        ? `https://tcc-cinematch.onrender.com/filmes/assistir-depois/${filmeId}`
-        : `https://tcc-cinematch.onrender.com/filmes/assistir-depois`;
-
-      const res = await fetch(url, {
-        method: ativo ? "DELETE" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: ativo ? null : JSON.stringify({ tmdb_id: filmeId })
-      });
+      const res = await fetch(
+        `https://tcc-cinematch.onrender.com/filmes/assistir-depois`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ tmdb_id: filmeId })
+        }
+      );
 
       if (res.ok) {
-        btnAssistirDepois.classList.toggle("ativo", !ativo);
+        btnAssistirDepois.classList.add("ativo");
+        btnJaAssistido.classList.remove("ativo");
       }
 
     } catch (err) {
-      console.error("Erro Assistir Depois:", err);
+      console.error("Erro assistir depois:", err);
     }
   });
 
@@ -132,28 +100,26 @@ document.addEventListener("DOMContentLoaded", () => {
      JÁ ASSISTIDO
   ========================= */
   btnJaAssistido.addEventListener("click", async () => {
-    const ativo = btnJaAssistido.classList.contains("ativo");
-
     try {
-      const url = ativo
-        ? `https://tcc-cinematch.onrender.com/filmes/ja-assistidos/${filmeId}`
-        : `https://tcc-cinematch.onrender.com/filmes/ja-assistidos`;
-
-      const res = await fetch(url, {
-        method: ativo ? "DELETE" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: ativo ? null : JSON.stringify({ tmdb_id: filmeId })
-      });
+      const res = await fetch(
+        `https://tcc-cinematch.onrender.com/filmes/ja-assistidos`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ tmdb_id: filmeId })
+        }
+      );
 
       if (res.ok) {
-        btnJaAssistido.classList.toggle("ativo", !ativo);
+        btnJaAssistido.classList.add("ativo");
+        btnAssistirDepois.classList.remove("ativo");
       }
 
     } catch (err) {
-      console.error("Erro Já Assistido:", err);
+      console.error("Erro já assistido:", err);
     }
   });
 
