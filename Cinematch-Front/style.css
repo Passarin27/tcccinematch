@@ -796,6 +796,39 @@ a.voltar:hover,
   background: rgba(99,102,241,0.35);
   text-decoration: none;
 }
+/* ===== INPUT "CLIQUE PARA ESCOLHER" (GÊNEROS) ===== */
+#genreInput {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid #334155;
+  background: rgba(2, 6, 23, 0.8);
+  color: #E5E7EB;
+  cursor: pointer;
+  font-size: 14px;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+#genreInput::placeholder {
+  color: #9CA3AF;
+}
+
+#genreInput:hover {
+  border-color: #6366f1;
+}
+
+#genreInput:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+}
+
+/* container dos gêneros mais organizado */
+.genre-select {
+  margin-top: 8px;
+}
+
+
 
 
 
