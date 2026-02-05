@@ -84,7 +84,7 @@ async function carregarStatus() {
 btnAssistirDepois.addEventListener("click", async () => {
   if (!filmeAtual) return alert("Filme ainda carregando...");
 
-  await fetch(
+  const res = await fetch(
     "https://tcc-cinematch.onrender.com/filmes/assistir-depois",
     {
       method: "POST",
@@ -102,6 +102,12 @@ btnAssistirDepois.addEventListener("click", async () => {
     }
   );
 
+  if (!res.ok) {
+    const erro = await res.text();
+    console.error(erro);
+    return alert("Erro ao salvar filme");
+  }
+
   btnAssistirDepois.classList.add("ativo");
   btnJaAssistido.classList.remove("ativo");
 });
@@ -109,7 +115,7 @@ btnAssistirDepois.addEventListener("click", async () => {
 btnJaAssistido.addEventListener("click", async () => {
   if (!filmeAtual) return alert("Filme ainda carregando...");
 
-  await fetch(
+  const res = await fetch(
     "https://tcc-cinematch.onrender.com/filmes/ja-assistidos",
     {
       method: "POST",
@@ -126,6 +132,12 @@ btnJaAssistido.addEventListener("click", async () => {
       })
     }
   );
+
+  if (!res.ok) {
+    const erro = await res.text();
+    console.error(erro);
+    return alert("Erro ao salvar filme");
+  }
 
   btnJaAssistido.classList.add("ativo");
   btnAssistirDepois.classList.remove("ativo");
