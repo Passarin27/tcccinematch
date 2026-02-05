@@ -1,4 +1,5 @@
 const API_URL = "https://tcc-cinematch.onrender.com";
+const MAX_GENEROS = 3;
 
 /* =========================
    GÊNEROS
@@ -49,11 +50,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function addGenre(genre) {
-    selectedGenres.push(genre);
-    renderSelected();
-    renderDropdown();
+function addGenre(genre) {
+  if (selectedGenres.includes(genre)) return;
+
+  if (selectedGenres.length >= MAX_GENEROS) {
+    showToast("Você pode escolher no máximo 3 gêneros.", "erro");
+    return;
   }
+
+  selectedGenres.push(genre);
+  renderSelected();
+  renderDropdown();
+}
 
   function removeGenre(genre) {
     selectedGenres = selectedGenres.filter(g => g !== genre);
@@ -130,6 +138,11 @@ async function registrar() {
     return;
   }
 
+   if (selectedGenres.length > 3) {
+  showToast("Escolha no máximo 3 gêneros.", "erro");
+  return;
+}
+
   const normalizedGenres = selectedGenres.map(g =>
     g
       .toLowerCase()
@@ -176,3 +189,4 @@ function showToast(mensagem, tipo = "info") {
     setTimeout(() => toast.remove(), 300);
   }, 3000);
 }
+
