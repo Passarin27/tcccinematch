@@ -2,21 +2,75 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnAssistirDepois = document.getElementById("btn-assistir-depois");
   const btnJaAssistido = document.getElementById("btn-ja-assistido");
 
+  const posterImg = document.getElementById("poster");
+  const tituloEl = document.getElementById("titulo");
+  const sinopseEl = document.getElementById("sinopse");
+  const diretorEl = document.getElementById("diretor");
+  const atoresEl = document.getElementById("atores");
+
   if (!btnAssistirDepois || !btnJaAssistido) {
     console.error("❌ Botões não encontrados no DOM");
     return;
   }
 
-  // 🔐 token salvo no login
   const token = localStorage.getItem("token");
-
-  // 🎬 id do filme (ex: vindo da URL ?id=123)
   const params = new URLSearchParams(window.location.search);
   const filmeId = params.get("id");
 
   if (!token || !filmeId) {
     console.error("❌ Token ou filmeId não encontrados");
     return;
+  }
+
+  const TMDB_TOKEN = "SEU_TOKEN_TMDB_AQUI";
+
+  /* =========================
+     CARREGAR DETALHES DO FILME
+  ========================= */
+  async function carregarDetalhes() {
+    try {
+      const [filmeRes, creditosRes] = await Promise.all([
+        fetch(
+          `https://api.themoviedb.org/3/movie/${filmeId}?language=pt-BR`,
+          {
+            headers: {
+              Authorization: `Bearer ${TMDB_TOKEN}`
+            }
+          }
+        ),
+        fetch(
+          `https://api.themoviedb.org/3/movie/${filmeId}/credits?language=pt-BR`,
+          {
+            headers: {
+              Authorization: `Bearer ${TMDB_TOKEN}`
+            }
+          }
+        )
+      ]);
+
+      const filme = await filmeRes.json();
+      const creditos = await creditosRes.json();
+
+      if (posterImg && filme.poster_path) {
+        posterImg.src = `https://image.tmdb.org/t/p/w500${filme.poster_path}`;
+      }
+
+      if (tituloEl) tituloEl.textContent = filme.title;
+      if (sinopseEl) sinopseEl.textContent = filme.overview || "Sem sinopse disponível.";
+
+      const diretor = creditos.crew.find(p => p.job === "Director");
+      if (diretorEl) diretorEl.textContent = diretor ? diretor.name : "-";
+
+      const atores = creditos.cast
+        .slice(0, 5)
+        .map(a => a.name)
+        .join(", ");
+
+      if (atoresEl) atoresEl.textContent = atores || "-";
+
+    } catch (err) {
+      console.error("Erro ao carregar detalhes do filme:", err);
+    }
   }
 
   /* =========================
@@ -56,19 +110,14 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `https://tcc-cinematch.onrender.com/filmes/assistir-depois/${filmeId}`
         : `https://tcc-cinematch.onrender.com/filmes/assistir-depois`;
 
-      const options = {
+      const res = await fetch(url, {
         method: ativo ? "DELETE" : "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
-        }
-      };
-
-      if (!ativo) {
-        options.body = JSON.stringify({ tmdb_id: filmeId });
-      }
-
-      const res = await fetch(url, options);
+        },
+        body: ativo ? null : JSON.stringify({ tmdb_id: filmeId })
+      });
 
       if (res.ok) {
         btnAssistirDepois.classList.toggle("ativo", !ativo);
@@ -90,19 +139,14 @@ document.addEventListener("DOMContentLoaded", () => {
         ? `https://tcc-cinematch.onrender.com/filmes/ja-assistidos/${filmeId}`
         : `https://tcc-cinematch.onrender.com/filmes/ja-assistidos`;
 
-      const options = {
+      const res = await fetch(url, {
         method: ativo ? "DELETE" : "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
-        }
-      };
-
-      if (!ativo) {
-        options.body = JSON.stringify({ tmdb_id: filmeId });
-      }
-
-      const res = await fetch(url, options);
+        },
+        body: ativo ? null : JSON.stringify({ tmdb_id: filmeId })
+      });
 
       if (res.ok) {
         btnJaAssistido.classList.toggle("ativo", !ativo);
@@ -113,5 +157,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  carregarDetalhes();
   verificarStatus();
 });
