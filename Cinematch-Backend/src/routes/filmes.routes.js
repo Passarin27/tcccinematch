@@ -32,7 +32,7 @@ async function obterOuCriarLista(nome, usuario_id) {
 ========================= */
 async function buscarFilmeTMDB(tmdb_id) {
   const res = await fetch(
-    `https://api.themoviedb.org/3/movie/${tmdb_id}?language=pt-BR`,
+    `https://api.themoviedb.org/3/movie/${tmdb_id}?language=pt-BR&append_to_response=credits`,
     {
       headers: {
         Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
@@ -42,6 +42,8 @@ async function buscarFilmeTMDB(tmdb_id) {
   );
 
   if (!res.ok) {
+    const text = await res.text();
+    console.error('TMDB erro:', text);
     throw new Error('Erro ao buscar filme no TMDB');
   }
 
@@ -179,3 +181,4 @@ router.post('/ja-assistidos', authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+
