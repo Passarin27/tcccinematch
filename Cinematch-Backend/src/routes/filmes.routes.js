@@ -35,7 +35,8 @@ async function buscarFilmeTMDB(tmdb_id) {
     `https://api.themoviedb.org/3/movie/${tmdb_id}?language=pt-BR`,
     {
       headers: {
-        Authorization: `Bearer ${process.env.TMDB_TOKEN}`
+        Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
+        'Content-Type': 'application/json'
       }
     }
   );
@@ -46,6 +47,19 @@ async function buscarFilmeTMDB(tmdb_id) {
 
   return await res.json();
 }
+
+/* =========================
+   DETALHES DO FILME
+========================= */
+router.get('/detalhes/:tmdbId', authMiddleware, async (req, res) => {
+  try {
+    const filme = await buscarFilmeTMDB(req.params.tmdbId);
+    res.json(filme);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao buscar detalhes' });
+  }
+});
 
 /* =========================
    STATUS DO FILME
@@ -64,7 +78,7 @@ router.get('/status/:tmdbId', authMiddleware, async (req, res) => {
     return res.json({ assistirDepois: false, jaAssistido: false });
   }
 
-  const { data: listas } = await supabase
+  const { data: listas = [] } = await supabase
     .from('lista_filmes')
     .select(`listas!inner ( nome, usuario_id )`)
     .eq('filme_id', filme.id)
@@ -101,14 +115,12 @@ router.post('/assistir-depois', authMiddleware, async (req, res) => {
       .select()
       .single();
 
-    // remove de "Já assistidos"
     await supabase
       .from('lista_filmes')
       .delete()
       .eq('lista_id', listaJaAssistidos.id)
       .eq('filme_id', filme.id);
 
-    // adiciona em "Assistir depois"
     await supabase
       .from('lista_filmes')
       .upsert(
@@ -146,14 +158,12 @@ router.post('/ja-assistidos', authMiddleware, async (req, res) => {
       .select()
       .single();
 
-    // remove de "Assistir depois"
     await supabase
       .from('lista_filmes')
       .delete()
       .eq('lista_id', listaAssistirDepois.id)
       .eq('filme_id', filme.id);
 
-    // adiciona em "Já assistidos"
     await supabase
       .from('lista_filmes')
       .upsert(
@@ -168,16 +178,4 @@ router.post('/ja-assistidos', authMiddleware, async (req, res) => {
   }
 });
 
-router.get('/detalhes/:tmdbId', authMiddleware, async (req, res) => {
-  try {
-    const filme = await buscarFilmeTMDB(req.params.tmdbId);
-    res.json(filme);
-  } catch {
-    res.status(500).json({ error: 'Erro ao buscar detalhes' });
-  }
-});
-
-
 module.exports = router;
-
-
