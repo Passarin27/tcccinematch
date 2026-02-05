@@ -3,8 +3,11 @@ const router = express.Router();
 const supabase = require('../config/supabase');
 const { authMiddleware } = require('../controllers/auth.controller');
 
+// Node < 18 precisa disso
+const fetch = require('node-fetch');
+
 /* =========================
-   FUNÇÃO AUXILIAR
+   FUNÇÃO AUXILIAR – LISTAS
 ========================= */
 async function obterOuCriarLista(nome, usuario_id) {
   let { data: lista } = await supabase
@@ -25,6 +28,26 @@ async function obterOuCriarLista(nome, usuario_id) {
   }
 
   return lista;
+}
+
+/* =========================
+   FUNÇÃO AUXILIAR – TMDB
+========================= */
+async function buscarFilmeTMDB(tmdb_id) {
+  const res = await fetch(
+    `https://api.themoviedb.org/3/movie/${tmdb_id}?language=pt-BR`,
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.TMDB_TOKEN}`
+      }
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error('Erro ao buscar filme no TMDB');
+  }
+
+  return await res.json();
 }
 
 /* =========================
@@ -62,68 +85,90 @@ router.get('/status/:tmdbId', authMiddleware, async (req, res) => {
    ASSISTIR DEPOIS
 ========================= */
 router.post('/assistir-depois', authMiddleware, async (req, res) => {
-  const { tmdb_id, titulo, poster } = req.body;
-  const userId = req.user.id;
+  try {
+    const { tmdb_id } = req.body;
+    const userId = req.user.id;
 
-  const listaAssistirDepois = await obterOuCriarLista('Assistir depois', userId);
-  const listaJaAssistidos = await obterOuCriarLista('Já assistidos', userId);
+    const filmeTMDB = await buscarFilmeTMDB(tmdb_id);
 
-  const { data: filme } = await supabase
-    .from('filmes_salvos')
-    .upsert([{ tmdb_id, titulo, poster }])
-    .select()
-    .single();
+    const listaAssistirDepois = await obterOuCriarLista('Assistir depois', userId);
+    const listaJaAssistidos = await obterOuCriarLista('Já assistidos', userId);
 
-  // ❌ remove de "Já assistidos"
-  await supabase
-    .from('lista_filmes')
-    .delete()
-    .eq('lista_id', listaJaAssistidos.id)
-    .eq('filme_id', filme.id);
+    const { data: filme } = await supabase
+      .from('filmes_salvos')
+      .upsert([{
+        tmdb_id,
+        titulo: filmeTMDB.title,
+        poster: filmeTMDB.poster_path
+      }])
+      .select()
+      .single();
 
-  // ✅ adiciona em "Assistir depois"
-  await supabase
-    .from('lista_filmes')
-    .upsert(
-      [{ lista_id: listaAssistirDepois.id, filme_id: filme.id }],
-      { onConflict: 'lista_id,filme_id' }
-    );
+    // remove de "Já assistidos"
+    await supabase
+      .from('lista_filmes')
+      .delete()
+      .eq('lista_id', listaJaAssistidos.id)
+      .eq('filme_id', filme.id);
 
-  res.status(201).send();
+    // adiciona em "Assistir depois"
+    await supabase
+      .from('lista_filmes')
+      .upsert(
+        [{ lista_id: listaAssistirDepois.id, filme_id: filme.id }],
+        { onConflict: 'lista_id,filme_id' }
+      );
+
+    res.status(201).send();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao salvar filme' });
+  }
 });
 
 /* =========================
    JÁ ASSISTIDOS
 ========================= */
 router.post('/ja-assistidos', authMiddleware, async (req, res) => {
-  const { tmdb_id, titulo, poster } = req.body;
-  const userId = req.user.id;
+  try {
+    const { tmdb_id } = req.body;
+    const userId = req.user.id;
 
-  const listaJaAssistidos = await obterOuCriarLista('Já assistidos', userId);
-  const listaAssistirDepois = await obterOuCriarLista('Assistir depois', userId);
+    const filmeTMDB = await buscarFilmeTMDB(tmdb_id);
 
-  const { data: filme } = await supabase
-    .from('filmes_salvos')
-    .upsert([{ tmdb_id, titulo, poster }])
-    .select()
-    .single();
+    const listaJaAssistidos = await obterOuCriarLista('Já assistidos', userId);
+    const listaAssistirDepois = await obterOuCriarLista('Assistir depois', userId);
 
-  // ❌ remove de "Assistir depois"
-  await supabase
-    .from('lista_filmes')
-    .delete()
-    .eq('lista_id', listaAssistirDepois.id)
-    .eq('filme_id', filme.id);
+    const { data: filme } = await supabase
+      .from('filmes_salvos')
+      .upsert([{
+        tmdb_id,
+        titulo: filmeTMDB.title,
+        poster: filmeTMDB.poster_path
+      }])
+      .select()
+      .single();
 
-  // ✅ adiciona em "Já assistidos"
-  await supabase
-    .from('lista_filmes')
-    .upsert(
-      [{ lista_id: listaJaAssistidos.id, filme_id: filme.id }],
-      { onConflict: 'lista_id,filme_id' }
-    );
+    // remove de "Assistir depois"
+    await supabase
+      .from('lista_filmes')
+      .delete()
+      .eq('lista_id', listaAssistirDepois.id)
+      .eq('filme_id', filme.id);
 
-  res.status(201).send();
+    // adiciona em "Já assistidos"
+    await supabase
+      .from('lista_filmes')
+      .upsert(
+        [{ lista_id: listaJaAssistidos.id, filme_id: filme.id }],
+        { onConflict: 'lista_id,filme_id' }
+      );
+
+    res.status(201).send();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao salvar filme' });
+  }
 });
 
 module.exports = router;
