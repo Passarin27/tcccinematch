@@ -31,31 +31,36 @@ async function obterOuCriarLista(nome, usuario_id) {
    STATUS DO FILME
 ========================= */
 router.get('/status/:tmdbId', authMiddleware, async (req, res) => {
-  const { tmdbId } = req.params;
-  const userId = req.user.id;
+  try {
+    const { tmdbId } = req.params;
+    const userId = req.user.id;
 
-  const { data: filme } = await supabase
-    .from('filmes_salvos')
-    .select('id')
-    .eq('tmdb_id', tmdbId)
-    .single();
+    const { data: filme } = await supabase
+      .from('filmes_salvos')
+      .select('id')
+      .eq('tmdb_id', tmdbId)
+      .single();
 
-  if (!filme) {
-    return res.json({ assistirDepois: false, jaAssistido: false });
+    if (!filme) {
+      return res.json({ assistirDepois: false, jaAssistido: false });
+    }
+
+    const { data: listas = [] } = await supabase
+      .from('lista_filmes')
+      .select(`listas!inner ( nome, usuario_id )`)
+      .eq('filme_id', filme.id)
+      .eq('listas.usuario_id', userId);
+
+    const nomes = listas.map(l => l.listas.nome);
+
+    res.json({
+      assistirDepois: nomes.includes('Assistir depois'),
+      jaAssistido: nomes.includes('Já assistidos')
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro status filme' });
   }
-
-  const { data: listas = [] } = await supabase
-    .from('lista_filmes')
-    .select(`listas!inner ( nome, usuario_id )`)
-    .eq('filme_id', filme.id)
-    .eq('listas.usuario_id', userId);
-
-  const nomes = listas.map(l => l.listas.nome);
-
-  res.json({
-    assistirDepois: nomes.includes('Assistir depois'),
-    jaAssistido: nomes.includes('Já assistidos')
-  });
 });
 
 /* =========================
@@ -65,6 +70,8 @@ router.post('/assistir-depois', authMiddleware, async (req, res) => {
   try {
     const { tmdb_id } = req.body;
     const userId = req.user.id;
+
+    if (!tmdb_id) return res.sendStatus(400);
 
     const listaAssistirDepois = await obterOuCriarLista('Assistir depois', userId);
     const listaJaAssistidos = await obterOuCriarLista('Já assistidos', userId);
@@ -102,6 +109,8 @@ router.post('/ja-assistidos', authMiddleware, async (req, res) => {
   try {
     const { tmdb_id } = req.body;
     const userId = req.user.id;
+
+    if (!tmdb_id) return res.sendStatus(400);
 
     const listaJaAssistidos = await obterOuCriarLista('Já assistidos', userId);
     const listaAssistirDepois = await obterOuCriarLista('Assistir depois', userId);
