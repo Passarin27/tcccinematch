@@ -460,16 +460,17 @@ body {
   color: #052e16;
 }
 
-/* container do poster */
 .poster-container {
   position: relative;
-  display: inline-block;
+  width: 280px;       /* tamanho fixo como antes */
+  flex-shrink: 0;     /* impede encolher */
 }
 
 .poster-container img {
   width: 100%;
   border-radius: 12px;
 }
+
 
 
 
