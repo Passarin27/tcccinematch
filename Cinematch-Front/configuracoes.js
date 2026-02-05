@@ -5,7 +5,7 @@ if (!token) {
 }
 
 /* =========================
-   GÊNEROS
+   GÊNEROS (UI)
 ========================= */
 const allGenres = [
   "Ação",
@@ -19,7 +19,24 @@ const allGenres = [
   "Suspense"
 ];
 
-let selectedGenres = [];
+let selectedGenres = []; // sempre NORMALIZADO (minúsculo)
+
+/* =========================
+   NORMALIZAR
+========================= */
+function normalizarGenero(genero) {
+  return genero
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, "_");
+}
+
+function formatarGenero(genero) {
+  return genero
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, l => l.toUpperCase());
+}
 
 /* =========================
    CARREGAR USUÁRIO
@@ -43,10 +60,10 @@ async function carregarUsuario() {
     document.getElementById("fotoPerfil").src = usuario.foto;
   }
 
-  if (Array.isArray(usuario.preferences) && usuario.preferences.length > 0) {
+  if (Array.isArray(usuario.preferences)) {
     selectedGenres = usuario.preferences;
     document.getElementById("generosAtuais").textContent =
-      selectedGenres.join(", ");
+      selectedGenres.map(formatarGenero).join(", ");
   }
 }
 
@@ -66,8 +83,7 @@ async function salvarBackend(dados) {
   });
 
   if (!res.ok) {
-    const err = await res.json();
-    showToast(err.error || "Erro ao salvar alterações.", "erro");
+    showToast("Erro ao salvar alterações.", "erro");
     return false;
   }
 
@@ -75,161 +91,35 @@ async function salvarBackend(dados) {
 }
 
 /* =========================
-   EDITAR NOME
-========================= */
-async function editarNome() {
-  const input = document.getElementById("nomeInput");
-
-  if (input.hidden) {
-    input.hidden = false;
-    input.focus();
-    return;
-  }
-
-  if (!input.value) return;
-
-  const ok = await salvarBackend({ nome: input.value });
-  if (ok) {
-    document.getElementById("nomeAtual").textContent = input.value;
-    showToast("Nome atualizado com sucesso!", "sucesso");
-  }
-
-  input.hidden = true;
-}
-
-/* =========================
-   EDITAR EMAIL
-========================= */
-async function editarEmail() {
-  const input = document.getElementById("emailInput");
-
-  if (input.hidden) {
-    input.hidden = false;
-    input.focus();
-    return;
-  }
-
-  if (!input.value) return;
-
-  const ok = await salvarBackend({ email: input.value });
-  if (ok) {
-    document.getElementById("emailAtual").textContent = input.value;
-    showToast("E-mail atualizado com sucesso!", "sucesso");
-  }
-
-  input.hidden = true;
-}
-
-/* =========================
-   EDITAR SENHA
-========================= */
-async function editarSenha() {
-  const input = document.getElementById("senhaInput");
-
-  if (input.hidden) {
-    input.hidden = false;
-    input.focus();
-    return;
-  }
-
-  if (!input.value || input.value.length < 6) {
-    showToast("A senha deve ter no mínimo 6 caracteres.", "erro");
-    return;
-  }
-
-  const ok = await salvarBackend({ senha: input.value });
-  if (ok) {
-    showToast("Senha alterada com sucesso!", "sucesso");
-    input.value = "";
-  }
-
-  input.hidden = true;
-}
-
-/* =========================
-   FOTO
-========================= */
-const fotoInput = document.getElementById("fotoInput");
-const fotoPerfil = document.getElementById("fotoPerfil");
-
-function editarFoto() {
-  fotoInput.click();
-}
-
-fotoInput.addEventListener("change", async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const formData = new FormData();
-  formData.append("foto", file);
-
-  try {
-    const res = await fetch(
-      "https://tcc-cinematch.onrender.com/users/me/avatar",
-      {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData
-      }
-    );
-
-    if (!res.ok) throw new Error();
-
-    const data = await res.json();
-    fotoPerfil.src = data.foto;
-    showToast("Foto atualizada com sucesso!", "sucesso");
-
-  } catch {
-    showToast("Erro ao enviar imagem. Tente novamente.", "erro");
-  }
-});
-
-async function removerFoto() {
-  if (!confirm("Deseja remover sua foto de perfil?")) return;
-
-  const res = await fetch(
-    "https://tcc-cinematch.onrender.com/users/me/avatar",
-    {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
-    }
-  );
-
-  if (!res.ok) {
-    showToast("Erro ao remover a foto.", "erro");
-    return;
-  }
-
-  fotoPerfil.src = "./avatar.png";
-  showToast("Foto removida com sucesso!", "sucesso");
-}
-
-/* =========================
    EDITAR GÊNEROS
 ========================= */
 function editarPreferencias() {
   const container = document.getElementById("generoContainer");
-  const atual = document.getElementById("generosAtuais");
+  const btn = event.target;
 
   if (container.hidden) {
     container.hidden = false;
+    btn.textContent = "Salvar gêneros";
     return;
   }
 
-  if (selectedGenres.length === 0) {
+  if (!selectedGenres.length) {
     showToast("Selecione pelo menos um gênero.", "erro");
     return;
   }
 
   salvarBackend({ preferences: selectedGenres });
-  atual.textContent = selectedGenres.join(", ");
+  document.getElementById("generosAtuais").textContent =
+    selectedGenres.map(formatarGenero).join(", ");
+
   container.hidden = true;
+  btn.textContent = "Editar gêneros favoritos";
 
   showToast("Preferências atualizadas!", "sucesso");
 }
 
 /* =========================
-   DROPDOWN GÊNEROS
+   DROPDOWN
 ========================= */
 document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("genreInput");
@@ -238,36 +128,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderDropdown() {
     dropdown.innerHTML = "";
-    allGenres
-      .filter(g => !selectedGenres.includes(g))
-      .forEach(genre => {
+    allGenres.forEach(nome => {
+      const valor = normalizarGenero(nome);
+      if (!selectedGenres.includes(valor)) {
         const div = document.createElement("div");
         div.className = "genre-option";
-        div.textContent = genre;
-        div.onclick = () => addGenre(genre);
+        div.textContent = nome;
+        div.onclick = () => addGenre(valor);
         dropdown.appendChild(div);
-      });
+      }
+    });
   }
 
   function renderSelected() {
     selectedContainer.innerHTML = "";
-    selectedGenres.forEach(genre => {
+    selectedGenres.forEach(g => {
       const tag = document.createElement("div");
       tag.className = "genre-tag";
-      tag.innerHTML = `${genre} <span>×</span>`;
-      tag.querySelector("span").onclick = () => removeGenre(genre);
+      tag.innerHTML = `${formatarGenero(g)} <span>×</span>`;
+      tag.querySelector("span").onclick = () => removeGenre(g);
       selectedContainer.appendChild(tag);
     });
   }
 
-  function addGenre(genre) {
-    selectedGenres.push(genre);
+  function addGenre(g) {
+    selectedGenres.push(g);
     renderSelected();
     renderDropdown();
+    dropdown.style.display = "none";
   }
 
-  function removeGenre(genre) {
-    selectedGenres = selectedGenres.filter(g => g !== genre);
+  function removeGenre(g) {
+    selectedGenres = selectedGenres.filter(x => x !== g);
     renderSelected();
     renderDropdown();
   }
@@ -306,7 +198,6 @@ function showToast(mensagem, tipo = "info") {
   document.body.appendChild(toast);
 
   setTimeout(() => {
-    toast.style.opacity = "0";
-    setTimeout(() => toast.remove(), 300);
+    toast.remove();
   }, 3000);
 }
