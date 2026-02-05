@@ -24,7 +24,7 @@ const btnJaAssistido = document.getElementById("btn-ja-assistido");
 async function carregarDetalhes() {
   try {
     const res = await fetch(
-      `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_API_KEY}&language=pt-BR&append_to_response=credits`
+      `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${API_KEY}&language=pt-BR&append_to_response=credits`
     );
 
     if (!res.ok) throw new Error("Erro TMDB");
@@ -117,5 +117,6 @@ btnJaAssistido.addEventListener("click", async () => {
   await carregarDetalhes();
   await carregarStatus();
 })();
+
 
 
